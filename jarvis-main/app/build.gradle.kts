@@ -15,18 +15,20 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField(
+            "String",
+            "GOOGLE_CLIENT_ID",
+            "\"${System.getenv("GOOGLE_CLIENT_ID") ?: ""}\""
+        )
+        // AppAuth (YouTube login) uchun majburiy: redirect scheme = com.jarvis.agent
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.jarvis.agent"
     }
 
     buildFeatures {
         compose = true
         buildConfig = true
     }
-
-    buildConfigField(
-        "String",
-        "GOOGLE_CLIENT_ID",
-        "\"${System.getenv("GOOGLE_CLIENT_ID") ?: ""}\""
-    )
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
