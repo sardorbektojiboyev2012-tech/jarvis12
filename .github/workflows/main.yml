@@ -1,4 +1,3 @@
-
 name: Build JARVIS APK
 
 on:
@@ -12,6 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -30,13 +30,17 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         run: gradle --no-daemon :app:assembleDebug --stacktrace
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: JARVIS-debug-APK
           path: jarvis-main/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
 
-
-      - uses: actions/upload-artifact@v4
+      - name: Upload build reports (only on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          name: JARVIS-debug-APK
-          path: jarvis-main/app/build/outputs/apk/debug/*.apk
+          name: build-reports
+          path: jarvis-main/app/build/reports
+          if-no-files-found: ignore
