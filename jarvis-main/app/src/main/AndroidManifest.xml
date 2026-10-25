@@ -20,6 +20,7 @@
         <intent><action android:name="android.speech.RecognitionService"/></intent>
     </queries>
     <application android:name=".JarvisApp" android:label="JARVIS" android:largeHeap="true"
+        android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@android:style/Theme.Material.NoActionBar">
         <service android:name=".assistant.AssistantService" android:exported="false"
             android:foregroundServiceType="microphone"/>

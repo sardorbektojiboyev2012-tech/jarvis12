@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.jarvis.agent.assistant.AssistantService
 import com.jarvis.agent.auth.GoogleAuth
 import com.jarvis.agent.data.*
 import com.jarvis.agent.instagram.InstagramAuth
@@ -75,13 +76,13 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= 33) requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
         repo = JobRepository(this)
         connected.value = GoogleAuth.isConnected(this)
-        setContent { MaterialTheme(colorScheme = jarvisScheme) { Screen(repo, connected.value, status.value, { status.value = it },
+        setContent { MaterialTheme(colorScheme = jarvisScheme) { Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { Screen(repo, connected.value, status.value, { status.value = it },
             onYtConnect = {
                 if (!GoogleAuth.isConfigured()) status.value = "GOOGLE_CLIENT_ID sozlanmagan (SETUP_YOUTUBE.md)"
                 else authLauncher.launch(GoogleAuth.authIntent(this))
             },
             onYtDisconnect = { MainScope().launch { GoogleAuth.disconnect(this@MainActivity); connected.value = false; status.value = "YouTube uzildi" } },
-            onPick = { picker.launch("video/*") }) } }
+            onPick = { picker.launch("video/*") }) } } }
     }
 }
 
@@ -142,6 +143,7 @@ fun saveToGallery(ctx: Context, f: File): Boolean {
 fun Screen(repo: JobRepository, ytConnected: Boolean, status: String, setStatus: (String) -> Unit,
            onYtConnect: () -> Unit, onYtDisconnect: () -> Unit, onPick: () -> Unit) {
     var tab by remember { mutableStateOf(0) }
+    val running by AssistantService.running.collectAsState()
     Scaffold(bottomBar = { NavigationBar {
         listOf("🎙" to "Jarvis", "🎬" to "Studiya", "📋" to "Vazifalar", "🔗" to "Hisoblar").forEachIndexed { i, (ic, l) ->
             NavigationBarItem(selected = tab == i, onClick = { tab = i }, icon = { Text(ic) }, label = { Text(l) }) } } }) { pad ->
@@ -154,13 +156,13 @@ fun Screen(repo: JobRepository, ytConnected: Boolean, status: String, setStatus:
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("J A R V I S", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
-                    Text("PERSONAL AI  •  READY TO ASSIST", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("SHAXSIY YORDAMCHI", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surfaceVariant) {
                     Row(Modifier.padding(horizontal = 11.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("●", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
-                        Text("ONLINE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
+                        Text("●", color = if (running) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, style = MaterialTheme.typography.labelSmall)
+                        Text(if (running) "TINGLAYAPTI" else "OFFLINE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }

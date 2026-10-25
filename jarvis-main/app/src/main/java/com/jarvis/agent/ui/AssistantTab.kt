@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -50,7 +51,7 @@ fun AssistantTab(setStatus: (String) -> Unit) {
         Spacer(Modifier.height(8.dp))
         Text("J.A.R.V.I.S", fontSize = 28.sp, color = Cyan)
         Box(Modifier.size(190.dp).clip(CircleShape)
-            .background(if (running) Cyan.copy(alpha = 0.18f) else Color(0x22FFFFFF))
+            .background(Brush.radialGradient(if (running) listOf(Cyan.copy(alpha = 0.40f), Color(0x11000000)) else listOf(Color(0x33FFFFFF), Color(0x08FFFFFF))))
             .border(3.dp, if (running) Cyan else Color(0xFF3A5566), CircleShape)
             .clickable { if (running) AssistantService.stop(ctx) else if (!micOk()) requestAll() else startNow() },
             contentAlignment = Alignment.Center) { Text(if (running) "🎙" else "⏻", fontSize = 70.sp) }
@@ -76,7 +77,7 @@ fun AssistantTab(setStatus: (String) -> Unit) {
             OutlinedButton(onClick = { Setup.autostart(ctx) }) { Text("Avto-ishga tushirish (Xiaomi)") }
         }
         Section("Buyruq namunalari") {
-            Text("• salom\n• soat necha?\n• bugun nechanchi sana?\n• hisobot  /  hisobotni telegramga yubor\n• fonarni yoq  /  fonarni o'chir\n• budilnik 7 30\n• Dilshodga qo'ng'iroq qil\n• YouTube och\n• rahmat")
+            Text("• salom\n• soat necha?\n• bugun nechanchi sana?\n• hisobot  /  hisobotni telegramga yubor\n• fonarni yoq  /  fonarni o'chir\n• budilnik 7 30\n• 10 daqiqadan keyin eslat\n• Toshkent ob-havo\n• dollar kursi\n• Dilshodga qo'ng'iroq qil\n• YouTube och\n• rahmat")
         }
     }
 }

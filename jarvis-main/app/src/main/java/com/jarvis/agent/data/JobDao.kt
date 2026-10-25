@@ -12,5 +12,5 @@ interface JobDao {
     @Query("""SELECT * FROM jobs WHERE state IN ('APPROVED','SCHEDULED')
               AND scheduledAt <= :now AND nextAttemptAt <= :now ORDER BY scheduledAt""")
     suspend fun due(now: Long): List<JobEntity>
-    @Query("SELECT * FROM jobs WHERE state = 'UPLOADING'") suspend fun stuckUploading(): List<JobEntity>
+    @Query("SELECT * FROM jobs WHERE state = 'UPLOADING' AND updatedAt < :before") suspend fun stuckUploading(before: Long): List<JobEntity>
 }

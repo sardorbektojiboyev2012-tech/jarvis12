@@ -15,7 +15,9 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.jarvis.agent.data.*
 import com.jarvis.agent.security.ActionType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.Calendar
 
@@ -86,6 +88,19 @@ object Commands {
 
             has("hisobot", "holat") -> report(ctx, has("telegram"))
 
+            has("eslat") -> remind(ctx, t)
+
+            has("ob-havo", "obhavo") -> {
+                val city = Regex("([\\p{L}']+)\\s+(ob-havo|obhavo)").find(t)?.groupValues?.get(1)
+                    ?.takeIf { it != "bugun" && it != "hozir" } ?: "Tashkent"
+                withContext(Dispatchers.IO) { Reply(Web.weather(city)) }
+            }
+
+            has("kurs", "dollar", "yevro", "evro") -> {
+                val code = if (has("yevro", "evro")) "EUR" else "USD"
+                withContext(Dispatchers.IO) { Reply(Web.rate(code)) }
+            }
+
             has("fonar", "chiroq") ->
                 torch(ctx, !has("o'chir", "ochir", "yoping", "o'ch"))
 
@@ -99,7 +114,7 @@ object Commands {
                 openApp(ctx, t) ?: Reply("Bunday ilovani topolmadim.")
 
             has("yordam", "nima qila", "imkon") ->
-                Reply("Men vaqt va sanani aytaman, hisobot beraman, fonarni yoqaman, budilnik qo'yaman, qo'ng'iroq qilaman va ilovalarni ochaman.")
+                Reply("Men vaqt va sanani aytaman, ob-havo va kursni aytaman, eslatma qo'yaman, hisobot beraman, fonarni yoqaman, budilnik qo'yaman, qo'ng'iroq qilaman va ilovalarni ochaman.")
 
             else -> Reply("Tushunmadim. Yana bir bor aytib ko'ring.")
         }
@@ -164,6 +179,20 @@ object Commands {
         }
     } catch (e: Exception) {
         Reply("Fonarni boshqarib bo'lmadi.")
+    }
+
+    private fun remind(ctx: Context, t: String): Reply {
+        val m = Regex("(\\d{1,3})\\s*(daqiqa|minut|soat)").find(t)
+            ?: return Reply("Masalan: 10 daqiqadan keyin eslat.")
+        val n = m.groupValues[1].toLong()
+        val isHour = m.groupValues[2] == "soat"
+        val ms = if (isHour) n * 3_600_000L else n * 60_000L
+        return try {
+            Reminders.add(ctx, System.currentTimeMillis() + ms, "Eslatma vaqti keldi")
+            Reply("Xo'p, $n ${if (isHour) "soat" else "daqiqa"}dan keyin eslataman.")
+        } catch (e: Exception) {
+            Reply("Eslatma qo'ya olmadim.")
+        }
     }
 
     private fun needOverlay() =

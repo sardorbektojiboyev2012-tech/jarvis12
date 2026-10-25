@@ -12,7 +12,7 @@ class PublishWorker(ctx: Context, p: WorkerParameters) : CoroutineWorker(ctx, p)
     override suspend fun doWork(): Result {
         // Jarayon o'lgan bo'lsa, UPLOADING'da qolgan vazifa yuborilgan-yuborilmaganini bilmaymiz:
         // dublikat post qilmaslik uchun avtomatik qayta yubormaymiz, foydalanuvchi tekshiradi.
-        dao.stuckUploading().forEach {
+        dao.stuckUploading(now() - TimeUnit.MINUTES.toMillis(30)).forEach {
             dao.update(it.copy(state = JobState.AWAITING_APPROVAL, updatedAt = now(),
                 lastError = "Yuklash uzildi. Platformada borligini tekshiring, so'ng tasdiqlang."))
             Notifier.notify(applicationContext, it.id, "Tekshiruv kerak", "Vazifa #${it.id} uzilib qolgan")
